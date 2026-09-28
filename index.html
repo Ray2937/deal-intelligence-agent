@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deal Intelligence Agent — Hindsight vs Stateless Demo</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js for HTML Markdown Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-card-hover: #ffffff;
+            --border-light: #e2e8f0;
+            --accent-primary: #4f46e5;
+            --accent-secondary: #0284c7;
+            --accent-success: #059669;
+            --accent-warning: #d97706;
+            --accent-danger: #dc2626;
+            --text-main: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+            --shadow-lg: 0 20px 30px -10px rgba(79, 70, 229, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-main);
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(79, 70, 229, 0.05) 0px, transparent 40%),
+                radial-gradient(at 90% 90%, rgba(2, 132, 199, 0.06) 0px, transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2.5rem 1.5rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        /* Top Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1.75rem;
+            border-bottom: 1px solid var(--border-light);
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            color: white;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+        }
+
+        .brand-text h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #0f172a;
+        }
+
+        .brand-text p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .status-pills {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.775rem;
+            font-weight: 600;
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            color: var(--text-body);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+        }
+
+        .pill-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--accent-success);
+            box-shadow: 0 0 6px var(--accent-success);
+        }
+
+        /* Card Section */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #0f172a;
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .btn-preset {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            padding: 0.55rem 1.1rem;
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .btn-preset:hover {
+            background: #e2e8f0;
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            transform: translateY(-1px);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            color: #0f172a;
+            font-family: inherit;
+            font-size: 0.975rem;
+            resize: vertical;
+            min-height: 85px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, var(--accent-primary), #3730a3);
+            color: white;
+            border: none;
+            padding: 0.85rem 1.8rem;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.45);
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            padding: 0.75rem 1.3rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        /* Comparison Grid */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.75rem;
+        }
+
+        @media (max-width: 992px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .agent-panel {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-md);
+            position: relative;
+        }
+
+        .agent-panel.stateless {
+            border-top: 5px solid var(--accent-warning);
+        }
+
+        .agent-panel.hindsight {
+            border-top: 5px solid var(--accent-success);
+            box-shadow: 0 12px 30px rgba(5, 150, 105, 0.08);
+        }
+
+        .panel-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .stateless .panel-badge {
+            background: #fffbe6;
+            color: #b45309;
+            border: 1px solid #fde68a;
+        }
+
+        .hindsight .panel-badge {
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+        }
+
+        .panel-header h2 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            margin-bottom: 0.35rem;
+            color: #0f172a;
+        }
+
+        .panel-header p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 1.25rem;
+        }
+
+        /* Recalled Memories Section */
+        .memory-snippets {
+            background: #f0fdf4;
+            border: 1px solid #a7f3d0;
+            border-radius: var(--radius-md);
+            padding: 1.1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .memory-snippets h4 {
+            font-size: 0.875rem;
+            color: #047857;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-weight: 700;
+        }
+
+        .memory-tag {
+            background: #ffffff;
+            border-left: 4px solid var(--accent-success);
+            padding: 0.65rem 0.9rem;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            margin-top: 0.5rem;
+            color: #1e293b;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            line-height: 1.5;
+        }
+
+        /* Output HTML Box */
+        .output-content {
+            background: #ffffff;
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--text-body);
+            min-height: 280px;
+            border: 1px solid #e2e8f0;
+            overflow-y: auto;
+            max-height: 650px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
+        }
+
+        /* Rendered Markdown Element Styles */
+        .output-content h1, .output-content h2, .output-content h3, .output-content h4 {
+            color: #0f172a;
+            margin-top: 1.25rem;
+            margin-bottom: 0.6rem;
+            font-weight: 700;
+        }
+
+        .output-content h1 { font-size: 1.4rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.4rem; }
+        .output-content h2 { font-size: 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.3rem; color: #1e293b; }
+        .output-content h3 { font-size: 1.1rem; color: #334155; }
+        .output-content h4 { font-size: 0.975rem; color: #475569; }
+
+        .output-content p {
+            margin-bottom: 0.85rem;
+        }
+
+        .output-content ul, .output-content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .output-content li {
+            margin-bottom: 0.35rem;
+        }
+
+        .output-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.25rem 0;
+            font-size: 0.875rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+
+        .output-content th {
+            background: #f1f5f9;
+            color: #0f172a;
+            font-weight: 700;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #cbd5e1;
+        }
+
+        .output-content td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+        }
+
+        .output-content tr:nth-child(even) td {
+            background: #f8fafc;
+        }
+
+        .output-content strong {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .output-content blockquote {
+            border-left: 4px solid var(--accent-primary);
+            background: #f0f4fe;
+            padding: 0.75rem 1.1rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+            color: #1e1b4b;
+        }
+
+        .loading-spinner {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .spinner {
+            width: 28px;
+            height: 28px;
+            border: 3.5px solid #e2e8f0;
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Modal for Retain Memory */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(6px);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 620px;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+
+        .modal label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 700;
+            margin-bottom: 0.45rem;
+            color: #334155;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md);
+            padding: 0.8rem 1rem;
+            color: #0f172a;
+            outline: none;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #059669;
+            color: white;
+            font-weight: 700;
+            padding: 0.9rem 1.5rem;
+            border-radius: var(--radius-md);
+            box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);
+            display: none;
+            align-items: center;
+            gap: 0.6rem;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            display: flex;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <header>
+        <div class="brand">
+            <div class="brand-icon">
+                <i class="fa-solid fa-brain"></i>
+            </div>
+            <div class="brand-text">
+                <h1>Deal Intelligence Agent</h1>
+                <p>Hindsight Memory Layer vs. Stateless LLM Comparison</p>
+            </div>
+        </div>
+
+        <div class="status-pills">
+            <div class="pill">
+                <span class="pill-dot"></span> Hindsight API Connected
+            </div>
+            <div class="pill">
+                <i class="fa-solid fa-bolt" style="color: var(--accent-warning)"></i> Groq LLaMA
+            </div>
+            <div class="pill">
+                <i class="fa-solid fa-database" style="color: var(--accent-secondary)"></i> Bank: <code>deal_intelligence_demo</code>
+            </div>
+        </div>
+    </header>
+
+    <!-- Query Box Card -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <i class="fa-solid fa-comments" style="color: var(--accent-primary)"></i> Sales Rep Query & Scenario
+            </div>
+            <button class="btn-secondary" onclick="openRetainModal()">
+                <i class="fa-solid fa-plus-circle"></i> Retain New Deal Memory
+            </button>
+        </div>
+
+        <div class="preset-buttons">
+            <span style="font-size: 0.85rem; color: var(--text-muted); align-self: center; margin-right: 0.4rem; font-weight: 600;">Quick Presets:</span>
+            <button class="btn-preset" onclick="loadPreset('acme')">
+                <i class="fa-solid fa-building"></i> Acme Corp (SOC2 & Data Residency)
+            </button>
+            <button class="btn-preset" onclick="loadPreset('techcorp')">
+                <i class="fa-solid fa-network-wired"></i> TechCorp (SAML / SSO Integration)
+            </button>
+            <button class="btn-preset" onclick="loadPreset('globalpay')">
+                <i class="fa-solid fa-file-invoice-dollar"></i> GlobalPay (Annual Discount SLA)
+            </button>
+        </div>
+
+        <div class="form-group">
+            <textarea id="salesQuery" placeholder="Enter sales query (e.g. 'We have our next meeting with Acme Corp tomorrow. How should our sales rep pitch them?')"></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;" id="timingBadge">
+                <i class="fa-solid fa-clock"></i> Ready to run comparison
+            </span>
+            <button class="btn-action" onclick="runComparison()">
+                <i class="fa-solid fa-play"></i> Run Side-by-Side Comparison
+            </button>
+        </div>
+    </div>
+
+    <!-- Side-by-Side Comparison Grid -->
+    <div class="comparison-grid">
+        <!-- Stateless Panel -->
+        <div class="agent-panel stateless">
+            <div class="panel-badge">
+                <i class="fa-solid fa-bolt"></i> Stateless Chatbot (Without Hindsight)
+            </div>
+            <div class="panel-header">
+                <h2>Standard LLM Response</h2>
+                <p>Generates generic advice. Completely unaware of past client calls or objections.</p>
+            </div>
+            
+            <div id="statelessLoading" class="loading-spinner">
+                <div class="spinner"></div>
+                <span>Generating generic sales pitch...</span>
+            </div>
+
+            <div class="output-content" id="statelessOutput">Click "Run Side-by-Side Comparison" to generate responses.</div>
+        </div>
+
+        <!-- Hindsight Panel -->
+        <div class="agent-panel hindsight">
+            <div class="panel-badge">
+                <i class="fa-solid fa-brain"></i> Memory-Augmented Agent (With Hindsight)
+            </div>
+            <div class="panel-header">
+                <h2>Hindsight-Powered Strategy</h2>
+                <p>Queries past interactions, recalls CTO security objections, and crafts a targeted strategy.</p>
+            </div>
+
+            <!-- Recalled Memories Box -->
+            <div class="memory-snippets" id="memoryBox" style="display: none;">
+                <h4><i class="fa-solid fa-memory"></i> Historical Context Recalled from Hindsight Memory Bank:</h4>
+                <div id="memoryList"></div>
+            </div>
+
+            <div id="hindsightLoading" class="loading-spinner">
+                <div class="spinner"></div>
+                <span>Recalling memories & crafting targeted pitch...</span>
+            </div>
+
+            <div class="output-content" id="hindsightOutput">Click "Run Side-by-Side Comparison" to generate responses.</div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Retain Memory -->
+<div class="modal-overlay" id="retainModal">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">
+                <i class="fa-solid fa-memory" style="color: var(--accent-success)"></i> Retain Past Interaction into Hindsight
+            </div>
+            <button class="btn-close" onclick="closeRetainModal()">&times;</button>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label>Context / Call Label:</label>
+            <input type="text" id="retainContext" placeholder="e.g. Technical Discovery Call #3 with Acme Corp CTO">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label>Client Interaction Note / Objection:</label>
+            <textarea id="retainContent" style="min-height: 120px;" placeholder="e.g. During our third call, the CTO raised a strong objection regarding SOC2 Type II certification and data residency handling..."></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+            <button class="btn-secondary" onclick="closeRetainModal()">Cancel</button>
+            <button class="btn-action" style="background: linear-gradient(135deg, var(--accent-success), #047857);" onclick="submitRetain()">
+                <i class="fa-solid fa-save"></i> Retain Memory
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+    <i class="fa-solid fa-check-circle"></i> <span id="toastMsg">Memory stored!</span>
+</div>
+
+<script>
+    // Presets
+    const presets = {
+        acme: "We have our next high-stakes sales meeting with Acme Corp tomorrow. How should our sales rep pitch them and structure the discussion?",
+        techcorp: "TechCorp's VP of Engineering is joining our demo tomorrow. What technical prerequisites or past concerns should we address in the opening pitch?",
+        globalpay: "GlobalPay's CFO asked for a customized pricing proposal. How should we frame our annual enterprise licensing structure?"
+    };
+
+    function loadPreset(key) {
+        document.getElementById("salesQuery").value = presets[key];
+    }
+
+    // Set default preset on load
+    window.onload = function() {
+        loadPreset('acme');
+    };
+
+    function openRetainModal() {
+        document.getElementById("retainModal").classList.add("active");
+    }
+
+    function closeRetainModal() {
+        document.getElementById("retainModal").classList.remove("active");
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById("toast");
+        document.getElementById("toastMsg").innerText = msg;
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 3000);
+    }
+
+    async function submitRetain() {
+        const content = document.getElementById("retainContent").value.trim();
+        const context = document.getElementById("retainContext").value.trim();
+
+        if (!content) {
+            alert("Please enter memory content.");
+            return;
+        }
+
+        try {
+            const res = await fetch("/api/retain", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content, context })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showToast("Memory successfully retained into Hindsight!");
+                closeRetainModal();
+                document.getElementById("retainContent").value = "";
+                document.getElementById("retainContext").value = "";
+            } else {
+                alert("Error: " + (data.detail || "Failed to retain memory"));
+            }
+        } catch (e) {
+            alert("Network error: " + e.message);
+        }
+    }
+
+    async function runComparison() {
+        const query = document.getElementById("salesQuery").value.trim();
+        if (!query) {
+            alert("Please enter a sales query scenario.");
+            return;
+        }
+
+        // Show UI loading state
+        document.getElementById("statelessLoading").style.display = "flex";
+        document.getElementById("hindsightLoading").style.display = "flex";
+        document.getElementById("statelessOutput").style.display = "none";
+        document.getElementById("hindsightOutput").style.display = "none";
+        document.getElementById("memoryBox").style.display = "none";
+        document.getElementById("timingBadge").innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Querying Groq & Hindsight...`;
+
+        try {
+            const response = await fetch("/api/compare", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query: query })
+            });
+
+            const data = await response.json();
+
+            // Format Stateless Output using marked.js HTML rendering
+            document.getElementById("statelessOutput").innerHTML = marked.parse(data.stateless_response || "No response received.");
+            
+            // Format Hindsight Output using marked.js HTML rendering
+            document.getElementById("hindsightOutput").innerHTML = marked.parse(data.hindsight_response || "No response received.");
+
+            // Render Recalled Memories
+            const memoryListDiv = document.getElementById("memoryList");
+            memoryListDiv.innerHTML = "";
+            if (data.recalled_memories && data.recalled_memories.length > 0) {
+                data.recalled_memories.forEach(mem => {
+                    const tag = document.createElement("div");
+                    tag.className = "memory-tag";
+                    tag.innerText = `"${mem}"`;
+                    memoryListDiv.appendChild(tag);
+                });
+                document.getElementById("memoryBox").style.display = "block";
+            }
+
+            // Update timing badge
+            document.getElementById("timingBadge").innerHTML = 
+                `<i class="fa-solid fa-check-circle" style="color: var(--accent-success)"></i> Execution complete | Recall duration: ${data.timing.recall_sec}s | Total: ${data.timing.total_sec}s | Model: ${data.model_used}`;
+
+        } catch (error) {
+            alert("Error running comparison: " + error.message);
+        } finally {
+            document.getElementById("statelessLoading").style.display = "none";
+            document.getElementById("hindsightLoading").style.display = "none";
+            document.getElementById("statelessOutput").style.display = "block";
+            document.getElementById("hindsightOutput").style.display = "block";
+        }
+    }
+</script>
+
+</body>
+</html>
